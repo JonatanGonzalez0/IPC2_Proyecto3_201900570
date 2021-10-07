@@ -1,11 +1,8 @@
 from flask import Flask,jsonify
+from flask_cors import CORS
 
 app = Flask(__name__)
-
-@app.route('/')
-
-def index():
-    return'Pagina Principal Index'
+cors = CORS(app,resources={r"/*": {"origin":"*"}})
 
 @app.route('/cargarArchivo',methods=['POST'])
 def cargarArchivo():
