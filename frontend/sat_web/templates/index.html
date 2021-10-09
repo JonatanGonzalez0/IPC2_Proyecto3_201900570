@@ -56,7 +56,7 @@ body {font-size:16px;}
       <label for="dataSend">Data de envio:</label><br>
       <textarea id="dataSend" name="dataSend" rows="4" cols="50">Esperando data..</textarea>
       <br><br>
-      <input type="submit" value="Enviar">
+      <button onclick="enviarSolicitudes()" name="submit">Enviar</button>
     </form>
   </div>
   
@@ -146,13 +146,16 @@ function w3_close() {
   document.getElementById("myOverlay").style.display = "none";
 }
 
-// Modal Image Gallery
-function onClick(element) {
-  document.getElementById("img01").src = element.src;
-  document.getElementById("modal01").style.display = "block";
-  var captionText = document.getElementById("caption");
-  captionText.innerHTML = element.alt;
+function enviarSolicitudes(){
+  let data = document.getElementById("archivoXML").files[0];
+  let entry = document.getElementById("archivoXML").files[0];
+  console.log('doupload',entry,data)
+  fetch('http://127.0.0.1:5000/' + encodeURIComponent(entry.name), {method:'POST',body:data});
+  alert('your file has been uploaded');
+  location.reload();
 }
+
+
 </script>
 
 </body>
