@@ -1,5 +1,6 @@
 from django.shortcuts import render
-
+endoponint = 'http://127.0.0.1:6000/'
 # Create your views here.
-def index(request):
-    return render(request,'index.html')
+
+def home():
+    return render('index.html')
