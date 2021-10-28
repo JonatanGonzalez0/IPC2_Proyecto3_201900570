@@ -15,7 +15,7 @@ Including another URLconf
 """
 
 from django.urls import path
-from . import views
+from sat_web import views
 
 urlpatterns = [
             
