@@ -4,6 +4,7 @@ from flask import Flask, jsonify,request
 from flask_cors import CORS
 from xml.etree import ElementTree as ET
 from autorizacion import autorizacion
+from procesadorInfo import procesador
 
 app = Flask(__name__)
 cors = CORS(app,resources={r"/*": {"origin":"*"}})
@@ -22,14 +23,8 @@ def cargarArchivo():
     
     datosDTE = root.findall('DTE')
     
-    Listado_Autorizaciones = []
-    contadorErrorNitEmisor = 0
-    contadorErrorNitReceptor = 0
-    contadorErrorIva = 0
-    contadorErrorTotal = 0 
-    contadorFacturas = 0
-    contadorFacturasSinError=0
-    contadorFacturasError = 0
+    proceso = procesador()
+    
     
     for solicitud in datosDTE:
         fecha  = solicitud.find('TIEMPO').text
@@ -42,18 +37,14 @@ def cargarArchivo():
         
         
         if Nit_Emisor_Correcto== False:
-            contadorErrorNitEmisor+=1
-            contadorFacturasError+=1
-            contadorFacturas+=1
+            proceso.Listado_Autorizaciones.append(autorizacion(matchFecha,"","","","'","''","''",error='Nit_Emisor'))
             continue
             
         Nit_Receptor = solicitud.find('NIT_RECEPTOR').text
         Nit_Receptor_Correcto = verificarNit(Nit_Receptor)
         
         if Nit_Receptor_Correcto== False:
-            contadorErrorNitReceptor+=1
-            contadorFacturasError+=1
-            contadorFacturas+=1
+            proceso.Listado_Autorizaciones.append(autorizacion(matchFecha,"","","","'","''","''",error='Nit_Receptor'))
             continue
         
         valor = solicitud.find('VALOR').text
@@ -62,25 +53,18 @@ def cargarArchivo():
         iva_Correcto = verificarIva(valor,iva)
         
         if iva_Correcto == False:
-            contadorErrorIva+=1
-            contadorFacturasError+=1
-            contadorFacturas+=1
+            proceso.Listado_Autorizaciones.append(autorizacion(matchFecha,"","","","'","''","''",error='Iva'))
             continue
         
         total = solicitud.find('TOTAL').text
         total_Correcto = verificarTotal(valor,total)
         
         if total_Correcto == False:
-            contadorErrorTotal +=1
-            contadorFacturasError+=1
-            contadorFacturas+=1
+            proceso.Listado_Autorizaciones.append(autorizacion(matchFecha,"","","","'","''","''",error='Total'))
             continue
         
-        
         #SI paso todos los verificadores, el dte esta correcto y se almacena
-        Listado_Autorizaciones.append(autorizacion(matchFecha,referencia,Nit_Emisor,Nit_Receptor,valor,iva,total,error=None))
-        contadorFacturas+=1
-        contadorFacturasSinError +=1
+        proceso.Listado_Autorizaciones.append(autorizacion(matchFecha,referencia,Nit_Emisor,Nit_Receptor,valor,iva,total,error=None))
      
     Carpeta_Raiz = os.path.dirname(os.path.abspath(__file__))
     tree = ET.parse(Carpeta_Raiz+'/Base_Autorizaciones.xml')
