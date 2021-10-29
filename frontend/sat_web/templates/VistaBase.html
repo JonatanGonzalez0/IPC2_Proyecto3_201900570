@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-2">
+    <h1 style="text-align: center;"> Base de datos (Autorizaciones)</h1>
+</div>
+<div class="container py-2">
+<form action="/BaseDatos/" method="POST" >
+    {% csrf_token %}
+<div class="container py-3 center" style=" display: flex; align-items: center; justify-content: center; align-conten:center; min-height: 100%;  /* Fallback for browsers do NOT support vh unit */min-height: 100vh;">
+    {% if BaseDatos %} 
+    <textarea label="textarea" name="textarea" rows="50" cols="100">{{BaseDatos}}</textarea> 
+    {% endif %}
+</div >
+<button type="submit" class="btn btn-dark btn-lg" >Borrar Base </button>
+</form>
+</div>
+{% if estadoBase %} 
+<script>
+    alert('{{ estadoBase }}');
+</script>
+{% endif %}
+{% endblock content %}

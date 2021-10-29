@@ -1,3 +1,4 @@
+from django.http import response
 from frontend.forms import FileForm
 from django.shortcuts import render
 import requests
@@ -5,6 +6,7 @@ endpoint = 'http://127.0.0.1:5000/'
 # Create your views here.
 
 def home(request):
+    response = requests.get(endpoint)
     return render(request,'index.html')
 
 def cargaMasiva(request):
@@ -31,3 +33,35 @@ def cargaMasiva(request):
         else:
             return render(request,'carga.html')
     return render(request,'carga.html',context)
+
+def baseDatos(request):
+    context = {
+        'estadoBase':'None',
+        'BaseDatos':'None'
+    }
+    
+    if request.method == 'POST':
+        
+        response = requests.post(endpoint+'baseDatos')
+        
+        response_data = response.json()
+        
+        if response.ok:
+            context['estadoBase']= response_data['estadoBase']
+            context['BaseDatos'] = response_data['BaseDatos']
+        else:
+            context['estadoBase']='No se pudo eliminar la Base de Datos'
+    else:
+        response = requests.get(endpoint+'baseDatos')
+        response_data = response.json()
+        
+        if response.ok:
+            context['estadoBase']= response_data['estadoBase']
+            context['BaseDatos'] = response_data['BaseDatos']
+        else:
+            context['estadoBase']='No se pudo oibtener la Base de Datos'
+    
+    return render(request,'VistaBase.html',context)
+
+def ivaNit(request):
+    print('Hola')    

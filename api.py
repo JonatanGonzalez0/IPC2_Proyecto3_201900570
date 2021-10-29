@@ -1,14 +1,16 @@
 
 import os
 import re
-from flask import Flask, jsonify,request
-from flask_cors import CORS
 from xml.etree import ElementTree as ET
-from autorizacion import autorizacion
-from procesadorInfo import procesador
-from autorizacionAprobada import autorizacionAprobada
-from aprobacion import aprobacion
+import datetime
+from operator import attrgetter
+from flask import Flask, jsonify, request
+from flask_cors import CORS
 
+from aprobacion import aprobacion
+from autorizacion import autorizacion
+from autorizacionAprobada import autorizacionAprobada
+from procesadorInfo import procesador
 
 app = Flask(__name__)
 cors = CORS(app,resources={r"/*": {"origin":"*"}})
@@ -18,11 +20,12 @@ BaseDatos = []
 @app.route('/',methods=['GET'])
 def index():
     if request.method=='GET':
-        return jsonify({"message":"Api funcionando"})
+        UpdateBase()
+        return jsonify({"message":"Api funcionando Base Cargada"})
 
 @app.route('/cargarArchivo',methods=['POST'])
 def cargarArchivo():
-    
+    global BaseDatos
     xml = request.data.decode('utf-8')
     root = ET.XML(xml)
     
@@ -180,9 +183,8 @@ def cargarArchivo():
    
     
     xmlResult = ET.tostring(root, encoding='utf8').decode('utf8')
-    UpdateBase()
     return jsonify({"dataProcesada":xmlResult})
-
+    
 def verificarNit(nit):
     longitud =len(nit)
     
@@ -284,14 +286,52 @@ def UpdateBase():
     else:
         BaseDatos=None
               
+@app.route('/baseDatos',methods=['POST','GET'])     
+def baseDatos():
+    if request.method=='POST':
+        #si es post, el usuario activo el boton eliminar
+        xml_data = "<LISTAAUTORIZACIONES></LISTAAUTORIZACIONES>"
+        print(ET.canonicalize(xml_data))
         
+        Carpeta_Raiz = os.path.dirname(os.path.abspath(__file__))
+        rutaBase =Carpeta_Raiz+'/Base_Autorizaciones.xml'  
+        
+        with open(rutaBase, mode='w', encoding='utf-8') as out_file:
+            ET.canonicalize(xml_data, out=out_file)
+
+        tree = ET.parse(rutaBase)
+        root = tree.getroot()   
+        
+        xmlResult = ET.tostring(root, encoding='utf8').decode('utf8')
+        
+        return jsonify({"estadoBase":"Base Eliminada","BaseDatos":xmlResult})   
+    
+    elif request.method=='GET':
+        Carpeta_Raiz = os.path.dirname(os.path.abspath(__file__))
+        rutaBase =Carpeta_Raiz+'/Base_Autorizaciones.xml'
+        tree = ET.parse(rutaBase)
+        root = tree.getroot()   
+        
+        xmlResult = ET.tostring(root, encoding='utf8').decode('utf8')
+        
+        return jsonify({"estadoBase":"Base Actualizada","BaseDatos":xmlResult})
+
 UpdateBase()
 
-if len(BaseDatos)>0:
-    print('La base esta actualizada')
-else:
-    print('No hay datos en la base')
+@app.route('/ivaNitChart',methods=['POST','GET'])
 
+def ivaNit():
+    global BaseDatos
+    baseDatos.sort(key = lambda r: r.fecha)
+    
+    if request.method == 'GET':
+        
+       
+        
+
+
+        
+    
 
 if __name__=='__main__':
     app.run(debug=True,port=5000)

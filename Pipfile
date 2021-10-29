@@ -8,6 +8,7 @@ flask = "*"
 flask-cors = "*"
 django = "*"
 requests = "*"
+python-nvd3 = "*"
 
 [dev-packages]
 
