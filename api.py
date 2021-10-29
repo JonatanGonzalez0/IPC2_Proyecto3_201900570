@@ -32,6 +32,9 @@ def cargarArchivo():
         
         referencia = solicitud.find('REFERENCIA').text
         
+        if proceso.ExisteReferencia(referencia)==True:
+            proceso.Listado_Autorizaciones.append(autorizacion(matchFecha,"","","","'","''","''",error='Referencia'))
+        
         Nit_Emisor = solicitud.find('NIT_EMISOR').text
         Nit_Emisor_Correcto = verificarNit(Nit_Emisor)
         
@@ -64,27 +67,98 @@ def cargarArchivo():
             continue
         
         #SI paso todos los verificadores, el dte esta correcto y se almacena
-        proceso.Listado_Autorizaciones.append(autorizacion(matchFecha,referencia,Nit_Emisor,Nit_Receptor,valor,iva,total,error=None))
+        proceso.Listado_Autorizaciones.append(autorizacion(matchFecha,referencia,Nit_Emisor,Nit_Receptor,valor,iva,total,error='OK'))
      
     Carpeta_Raiz = os.path.dirname(os.path.abspath(__file__))
     tree = ET.parse(Carpeta_Raiz+'/Base_Autorizaciones.xml')
     
     root = tree.getroot()
-       
-    autorizacionesTree = root.findall('AUTORIZACION')
-    cod = ''
-    if len(autorizacionesTree)>0:
+    
+    
+    while(len(proceso.lista_Autorizaciones)>0):
+   
+        autorizacionChild = ET.SubElement(root,'AUTORIZACION')
         
-        for aut in autorizacionesTree:
-            cod = aut.find('CODIGO_APROBACION').text
-    else:
-        cod = 1
+        fecha = proceso.lista_Autorizaciones[0].fecha
+          
+        #Hijo de Fecha 
+        fechaChild = ET.SubElement(autorizacionChild,'FECHA')
+        fechaChild.text= fecha
+        
+        datosFacturas = proceso.getFacturasFecha(fecha)
+        
+        #hijo de Errores en la autorizacion 
+        erroresChild = ET.SubElement(autorizacionChild,'ERRORES')
+        
+        contNitEmisor = proceso.getErroresNitEmisor(datosFacturas)
+        NitEmisorError =  ET.SubElement(erroresChild,'NIT_EMISOR')
+        NitEmisorError.text = str(contNitEmisor)
+        
+        contNitReceptor = proceso.getErroresNitReceptor(datosFacturas)
+        catNitReceptorError =  ET.SubElement(erroresChild,'NIT_RECEPTOR')
+        catNitReceptorError.text = str(contNitReceptor)
+        
+        contErrorIva = proceso.getErroresIva(datosFacturas)
+        ErrorIva =  ET.SubElement(erroresChild,'IVA')
+        ErrorIva.text = str(contErrorIva)
+        
+        contErrorReferencia = proceso.getErroresReferencia(datosFacturas)
+        ErrorReferencia =  ET.SubElement(erroresChild,'REFERENCIA_DUPLICADA')
+        ErrorReferencia.text = str(contErrorReferencia)
+        
+        #hijo CantAprobaciones
+        cantAprobaciones = ET.SubElement(autorizacionChild,'FACTURAS_CORRECTAS')
+        conteoAprob = proceso.getCantFacturasCorrectas(datosFacturas)
+        cantAprobaciones.text = str(conteoAprob)
+        
+        
+        #hijo CantEmisores
+        cantEmisores = ET.SubElement(autorizacionChild,'CANTIDAD_EMISORES')
+        cantEmi = proceso.getCantEmisores(datosFacturas)
+        cantEmisores.text = str(cantEmi)
+        
+        #hijo CantReceptores
+        cantEmisores = ET.SubElement(autorizacionChild,'CANTIDAD_RECEPTORES')
+        cantRecep = proceso.getCantReceptores(datosFacturas)
+        cantEmisores.text = str(cantRecep)
+        
+        
+        #hijo de Errores en la autorizacion 
+        listado_Autorizaciones = ET.SubElement(autorizacionChild,'LISATOD_AUTORIZACIONES')
+        
+        Aprobaciones = proceso.getAprobaciones(datosFacturas)
+        
+        cod = 0
+        
+        for aprobacion in Aprobaciones:
+            aprobacion:autorizacion
+            cod +=1
+            codigo = str(cod)
+            codFil = codigo.zfill(8)
+            Fech = fecha.replace('/','')
+            codigoFormat = Fech + codFil
+            
+            aprobacionChild = ET.SubElement(listado_Autorizaciones,'APROBACION')
+            
+            NitEmisorChild = ET.SubElement(aprobacionChild,'NIT_EMISOR',)
+            NitEmisorChild.text = aprobacion.nitEmisor
+            NitEmisorChild.set('ref', aprobacion.referencia)
+            
+            codAprobacionChild = ET.SubElement(aprobacionChild,'CODIGO_APROBACION')
+            codAprobacionChild.text = codigoFormat
+            
+        catAprobacionesChil = ET.SubElement(listado_Autorizaciones,'CANTIDAD_APROBACIONES')
+        conteoAprob = proceso.getCantFacturasCorrectas(datosFacturas)
+        catAprobacionesChil.text = str(conteoAprob)
+            
+        
+        proceso.deleteFacturasFecha(fecha)
+        
     
-    autorizacionChild = ET.SubElement(root,'AUTORIZACION')
-    
-    if cod ==1:
-        codigo = '1'
-        str2 = codigo.zfill(10)
+    tree.write(Carpeta_Raiz+'/Base_Autorizaciones.xml')
+        
+        
+        
     
     return jsonify({"message":"Archivo cargado archivo"})
 
