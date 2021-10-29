@@ -1,8 +1,6 @@
-
 from frontend.forms import FileForm
 from django.shortcuts import render
 import requests
-
 endpoint = 'http://127.0.0.1:5000/'
 # Create your views here.
 
@@ -23,13 +21,12 @@ def cargaMasiva(request):
             xml = xml_bin.decode('utf-8')
             context['content']= xml
             
+            
             response = requests.post(endpoint+'cargarArchivo',data = xml_bin)
-   
             if response.ok:
-                context['response'] = "Archivo Cargado Correctamente"
+                context['response'] = "Archivo cargado correctamente"
             else:
-                context['response'] = "No se pudo cargar el archivo"
+                context['response'] = 'No se pudo cargar el archivo'
         else:
-            return render(request,'carga.html',context)
-    else:  
-        return render(request,'carga.html',context)
+            return render(request,'carga.html')
+    return render(request,'carga.html',context)

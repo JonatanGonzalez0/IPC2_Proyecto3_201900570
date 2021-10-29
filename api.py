@@ -75,7 +75,6 @@ def cargarArchivo():
     
     root = tree.getroot()
     
-    
     while(len(proceso.lista_Autorizaciones)>0):
 
         autorizacionChild = ET.SubElement(root,'AUTORIZACION')
@@ -175,11 +174,13 @@ def cargarArchivo():
     ET.indent(tree, space="\t", level=0) 
     rutaBase =Carpeta_Raiz+'/Base_Autorizaciones.xml'  
     tree.write(rutaBase,encoding='utf-8')
+   
+    '''
     
     with open (rutaBase, "r") as myfile:
         strResultado=myfile.readlines()
-    
-    return jsonify({"message":"hola"})
+    '''
+    return jsonify({"message":"Archivo cargado"})
     
         
 
