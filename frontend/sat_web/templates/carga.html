@@ -1,21 +1,21 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="container py-2">
-    <h1 style="text-align: center;"> Carga Masiva de Solicitudes</h1>
+    <h1 style="text-align: center;"> Carga de Solicitudes</h1>
 </div>
 <div class="container py-2">
 <form action="/cargar/" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
-<label for="file">Cargar un archivo</label>
+<label for="file">Seleccione un archivo</label>
 <br>
 <input type="file" id="file" name="file" accept="text/xml">
 <div class="container py-3">
     {% if content %}   
-        <textarea label="textarea" name="textarea" rows="20" cols="70">{{content}}</textarea>
-        <textarea label="textarea" name="textarea2" rows="20" cols="70">{{response}}</textarea>
+        <textarea label="textarea" name="textarea" rows="20" cols="80">{{content}}</textarea>
+        <textarea label="textarea" name="textarea2" rows="20" cols="80">{{response}}</textarea>
     {% else %}
-        <textarea style="margin-right: 1rem;" label="textarea" name="textarea" rows="20" cols="70"></textarea>
-        <textarea label="textarea" name="textarea2" rows="20" cols="70"></textarea>
+        <textarea label="textarea" name="textarea" rows="20" cols="80"></textarea>
+        <textarea label="textarea" name="textarea2" rows="20" cols="80"></textarea>
     {% endif %}
 </div>
 <button type="submit" class="btn btn-dark btn-lg">Enviar</button>

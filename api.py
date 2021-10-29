@@ -1,3 +1,4 @@
+
 import os
 import re
 from flask import Flask, jsonify,request
@@ -5,12 +6,14 @@ from flask_cors import CORS
 from xml.etree import ElementTree as ET
 from autorizacion import autorizacion
 from procesadorInfo import procesador
+from autorizacionAprobada import autorizacionAprobada
+from aprobacion import aprobacion
 
 
 app = Flask(__name__)
 cors = CORS(app,resources={r"/*": {"origin":"*"}})
 
-
+BaseDatos = []
 
 @app.route('/',methods=['GET'])
 def index():
@@ -129,7 +132,7 @@ def cargarArchivo():
         
         
         #hijo de Errores en la autorizacion 
-        listado_Autorizaciones = ET.SubElement(autorizacionChild,'LISATOD_AUTORIZACIONES')
+        listado_Autorizaciones = ET.SubElement(autorizacionChild,'LISTADO_AUTORIZACIONES')
         
         Aprobaciones = proceso.getAprobaciones(datosFacturas)
         
@@ -177,10 +180,8 @@ def cargarArchivo():
    
     
     xmlResult = ET.tostring(root, encoding='utf8').decode('utf8')
-    
+    UpdateBase()
     return jsonify({"dataProcesada":xmlResult})
-    
-        
 
 def verificarNit(nit):
     longitud =len(nit)
@@ -230,5 +231,68 @@ def verificarTotal(valor,total):
     else:
         return False
 
+def UpdateBase():
+    Carpeta_Raiz = os.path.dirname(os.path.abspath(__file__))
+    tree = ET.parse(Carpeta_Raiz+'/Base_Autorizaciones.xml')
+    
+    root = tree.getroot()
+    
+    autorizaciones = root.findall('AUTORIZACION')
+    global BaseDatos
+    if autorizaciones:
+        
+        for aut in autorizaciones:
+            fecha = aut.find('FECHA').text
+            
+            cantFacturas = int(aut.find('FACTURAS_RECIBIDAS').text)
+            
+            error = aut.find('ERRORES')
+            
+            ErrEmisor = error.find('NIT_EMISOR')
+            ErrReceptor = error.find('NIT_RECEPTOR')
+            ErrIVA = error.find('IVA')
+            ErrRef = error.find('REFERENCIA_DUPLICADA')
+            
+            cantFactCorrectas = int(aut.find('FACTURAS_CORRECTAS').text) 
+            cantEmisor = int(aut.find('CANTIDAD_EMISORES').text)
+            cantReceptor = int(aut.find('CANTIDAD_RECEPTORES').text)
+            
+            listaAutorizaciones = aut.find('LISTADO_AUTORIZACIONES')
+        
+            aprobaciones = listaAutorizaciones.findall('APROBACION')
+            listaAut = []
+            
+            if len(aprobaciones)>0:
+                for aprob in aprobaciones:
+                    childNitemisor = aprob.find('NIT_EMISOR')
+                    nitEmisor = childNitemisor.text
+                    strRef = childNitemisor.get('ref')
+
+                    codAprobacion = aprob.find('CODIGO_APROBACION').text
+                    
+                    nitReceptor = aprob.find('NIT_RECEPTOR').text
+                    valor = round(float(aprob.find('VALOR').text),2)
+                    
+                    listaAut.append(aprobacion(nitEmisor,strRef,codAprobacion,nitReceptor,valor))
+
+                cantAprobaciones = len(listaAut)
+                
+                BaseDatos.append(autorizacionAprobada(fecha,cantFacturas,ErrEmisor,ErrReceptor,ErrIVA,ErrRef,cantFactCorrectas,cantEmisor,cantReceptor,listaAut,cantAprobaciones))
+            else:
+                BaseDatos.append(autorizacionAprobada(fecha,cantFacturas,ErrEmisor,ErrReceptor,ErrIVA,ErrRef,cantFactCorrectas,cantEmisor,cantReceptor,None,0))
+                
+    else:
+        BaseDatos=None
+              
+        
+UpdateBase()
+
+if len(BaseDatos)>0:
+    print('La base esta actualizada')
+else:
+    print('No hay datos en la base')
+
+
 if __name__=='__main__':
     app.run(debug=True,port=5000)
+    
