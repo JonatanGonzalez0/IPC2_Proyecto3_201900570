@@ -30,6 +30,6 @@ def cargaMasiva(request):
             else:
                 context['response'] = "No se pudo cargar el archivo"
         else:
-            return render(request,'carga.html')
+            return render(request,'carga.html',context)
     else:  
         return render(request,'carga.html',context)
