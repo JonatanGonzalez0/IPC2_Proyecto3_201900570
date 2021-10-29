@@ -24,12 +24,11 @@ def cargaMasiva(request):
             context['content']= xml
             
             response = requests.post(endpoint+'cargarArchivo',data = xml_bin)
-            
-            print(response)
+   
             if response.ok:
-                context['response'] = response['content']
+                context['response'] = "Archivo Cargado Correctamente"
             else:
-                context['response'] = 'No se pudo cargar el archivo'
+                context['response'] = "No se pudo cargar el archivo"
         else:
             return render(request,'carga.html')
     else:  

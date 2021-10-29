@@ -17,9 +17,8 @@ def index():
     if request.method=='GET':
         return jsonify({"message":"Api funcionando"})
 
-@app.route('/cargarArchivo',methods=['POST','GET'])
+@app.route('/cargarArchivo',methods=['POST'])
 def cargarArchivo():
-    
     if request.method =='POST':
         xml = request.data.decode('utf-8')
         root = ET.XML(xml)
@@ -172,12 +171,15 @@ def cargarArchivo():
             
             proceso.deleteFacturasFecha(fecha)
         
-        ET.indent(tree, space="\t", level=0)    
         
-        tree.write(Carpeta_Raiz+'/Base_Autorizaciones.xml',encoding='utf-8')
-            
+        ET.indent(tree, space="\t", level=0) 
+        rutaBase =Carpeta_Raiz+'/Base_Autorizaciones.xml'  
+        tree.write(rutaBase,encoding='utf-8')
         
-        return jsonify({"content":ET.tostring(root)})
+        with open (rutaBase, "r") as myfile:
+            strResultado=myfile.readlines()
+        
+        return jsonify({"content":strResultado})
         
         
 
