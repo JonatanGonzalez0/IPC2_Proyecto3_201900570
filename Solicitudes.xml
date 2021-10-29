@@ -1,4 +1,4 @@
-
+<?xml version="1.0" encoding="UTF-8"?>
 <SOLICITUD_AUTORIZACION>
     <DTE>
         <TIEMPO>Guatemala, 15/01/2021 15:25 hrs.</TIEMPO>
@@ -18,23 +18,4 @@
         <IVA>12.00</IVA>
         <TOTAL>112.00</TOTAL>
     </DTE>
-    <DTE>
-        <TIEMPO>Guatemala, 15/01/2021 15:25 hrs.</TIEMPO>
-        <REFERENCIA>A1990</REFERENCIA>
-        <NIT_EMISOR>24284955</NIT_EMISOR>
-        <NIT_RECEPTOR>24284955</NIT_RECEPTOR>
-        <VALOR>100.00</VALOR>
-        <IVA>12.00</IVA>
-        <TOTAL>112.00</TOTAL>
-    </DTE>
-    <DTE>
-        <TIEMPO>Guatemala, 16/01/2021 15:25 hrs.</TIEMPO>
-        <REFERENCIA>A1990</REFERENCIA>
-        <NIT_EMISOR>24284955</NIT_EMISOR>
-        <NIT_RECEPTOR>24284955</NIT_RECEPTOR>
-        <VALOR>100.00</VALOR>
-        <IVA>12.00</IVA>
-        <TOTAL>112.00</TOTAL>
-    </DTE>
-    
 </SOLICITUD_AUTORIZACION>
