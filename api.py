@@ -175,12 +175,10 @@ def cargarArchivo():
     rutaBase =Carpeta_Raiz+'/Base_Autorizaciones.xml'  
     tree.write(rutaBase,encoding='utf-8')
    
-    '''
     
-    with open (rutaBase, "r") as myfile:
-        strResultado=myfile.readlines()
-    '''
-    return jsonify({"message":"Archivo cargado"})
+    xmlResult = ET.tostring(root, encoding='utf8').decode('utf8')
+    
+    return jsonify({"dataProcesada":xmlResult})
     
         
 

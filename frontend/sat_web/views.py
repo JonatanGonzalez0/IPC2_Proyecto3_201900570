@@ -23,8 +23,9 @@ def cargaMasiva(request):
             
             
             response = requests.post(endpoint+'cargarArchivo',data = xml_bin)
+            response_data = response.json()
             if response.ok:
-                context['response'] = "Archivo cargado correctamente"
+                context['response'] = response_data['dataProcesada']
             else:
                 context['response'] = 'No se pudo cargar el archivo'
         else:
