@@ -1,7 +1,10 @@
-from django.http import response
 from frontend.forms import FileForm
 from django.shortcuts import render
 import requests
+import random
+import datetime
+import time
+
 endpoint = 'http://127.0.0.1:5000/'
 # Create your views here.
 
@@ -63,5 +66,10 @@ def baseDatos(request):
     
     return render(request,'VistaBase.html',context)
 
+
+
+
 def ivaNit(request):
-    print('Hola')    
+    
+    if request.method == "GET":
+        return render(request,'graficaIvaNit.html')   
