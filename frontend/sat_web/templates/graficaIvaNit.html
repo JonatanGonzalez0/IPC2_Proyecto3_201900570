@@ -5,4 +5,37 @@
     <h1 style="text-align: center;"> GRAFICA NIT/IVA</h1>
 </div>
 
+<div class="container py-4">
+    <h1 style="text-align: center;"> Ingrese el Nit que desea buscar </h1>
+  </div>
+  <div class="container py-5">
+  <div class="row">
+      <div class="col">
+        {% if form.errors %}
+        <p style="color: red;"> Por favor, completa todos los campos, todos son necesarios </p>
+        {% endif %}
+          <form action="/ivaNitChart/" method="POST">
+              {% csrf_token %}
+              <div class="mb-3">
+                  <label for="name" class="form-label">Nit:</label>
+                  <input type="text" class="form-control" id="nit" name ="nit">
+              </div>
+                
+              <div class="mb-3">
+                <label for="fechaIn" class="form-label">Fecha Inicio:</label>
+               <input type="date" class="form-control" name="fechaIn" 
+                        placeholder="dd/mm/yyyy" value=""
+                        min="01/01/1900" max="2030-12-31" id="fechaIn">
+              </div>
+               <div class="mb-3">
+                <label for="fechaFin" class="form-label">Fecha Fin:</label>
+               <input type="date" class="form-control" name="fechaFin" 
+                        placeholder="dd/mm/yyyy" value=""
+                        min="01/01/1900" max="2030-12-31" id="fechaFin">
+              </div>
+              <button type="submit" class="btn btn-dark btn-lg">Buscar</button>
+            </form>
+          </div>
+      </div>
+  </div>
 {% endblock content%}

@@ -2,8 +2,8 @@
 import os
 import re
 from xml.etree import ElementTree as ET
-import datetime
-from operator import attrgetter
+from datetime import datetime
+
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
@@ -15,7 +15,7 @@ from procesadorInfo import procesador
 app = Flask(__name__)
 cors = CORS(app,resources={r"/*": {"origin":"*"}})
 
-BaseDatos = []
+BaseDatos = None
 
 @app.route('/',methods=['GET'])
 def index():
@@ -36,25 +36,29 @@ def cargarArchivo():
     for solicitud in datosDTE:
         fecha  = solicitud.find('TIEMPO').text
         matchFecha = re.search(r'\d{2}/\d{2}/\d{4}',fecha).group()
-        
+        try:
+            fechaDateTime = datetime.strptime(matchFecha, '%d/%m/%Y')
+            fechaDateTime = fechaDateTime.strftime("%d/%m/%Y")
+        except:
+            continue
         referencia = solicitud.find('REFERENCIA').text
-        
+
         if proceso.ExisteReferencia(referencia)==True:
-            proceso.lista_Autorizaciones.append(autorizacion(matchFecha,"","","","'","''","''",error='Referencia'))
+            proceso.lista_Autorizaciones.append(autorizacion(fechaDateTime,"","","","'","''","''",error='Referencia'))
             continue
         Nit_Emisor = solicitud.find('NIT_EMISOR').text
         Nit_Emisor_Correcto = verificarNit(Nit_Emisor)
         
         
         if Nit_Emisor_Correcto== False:
-            proceso.lista_Autorizaciones.append(autorizacion(matchFecha,"","","","'","''","''",error='Nit_Emisor'))
+            proceso.lista_Autorizaciones.append(autorizacion(fechaDateTime,"","","","'","''","''",error='Nit_Emisor'))
             continue
             
         Nit_Receptor = solicitud.find('NIT_RECEPTOR').text
         Nit_Receptor_Correcto = verificarNit(Nit_Receptor)
         
         if Nit_Receptor_Correcto== False:
-            proceso.lista_Autorizaciones.append(autorizacion(matchFecha,"","","","'","''","''",error='Nit_Receptor'))
+            proceso.lista_Autorizaciones.append(autorizacion(fechaDateTime,"","","","'","''","''",error='Nit_Receptor'))
             continue
         
         valor = solicitud.find('VALOR').text
@@ -63,18 +67,18 @@ def cargarArchivo():
         iva_Correcto = verificarIva(valor,iva)
         
         if iva_Correcto == False:
-            proceso.lista_Autorizaciones.append(autorizacion(matchFecha,"","","","'","''","''",error='Iva'))
+            proceso.lista_Autorizaciones.append(autorizacion(fechaDateTime,"","","","'","''","''",error='Iva'))
             continue
         
         total = solicitud.find('TOTAL').text
         total_Correcto = verificarTotal(valor,total)
         
         if total_Correcto == False:
-            proceso.lista_Autorizaciones.append(autorizacion(matchFecha,"","","","'","''","''",error='Total'))
+            proceso.lista_Autorizaciones.append(autorizacion(fechaDateTime,"","","","'","''","''",error='Total'))
             continue
         
         #SI paso todos los verificadores, el dte esta correcto y se almacena
-        proceso.lista_Autorizaciones.append(autorizacion(matchFecha,referencia,Nit_Emisor,Nit_Receptor,valor,iva,total,error='OK'))
+        proceso.lista_Autorizaciones.append(autorizacion(fechaDateTime,referencia,Nit_Emisor,Nit_Receptor,valor,iva,total,error='OK'))
     
     Carpeta_Raiz = os.path.dirname(os.path.abspath(__file__))
     tree = ET.parse(Carpeta_Raiz+'/Base_Autorizaciones.xml')
@@ -234,17 +238,19 @@ def verificarTotal(valor,total):
         return False
 
 def UpdateBase():
+    global BaseDatos
+    BaseDatos = []
     Carpeta_Raiz = os.path.dirname(os.path.abspath(__file__))
     tree = ET.parse(Carpeta_Raiz+'/Base_Autorizaciones.xml')
     
     root = tree.getroot()
     
     autorizaciones = root.findall('AUTORIZACION')
-    global BaseDatos
+    
     if autorizaciones:
-        
         for aut in autorizaciones:
-            fecha = aut.find('FECHA').text
+            fechaSTR = aut.find('FECHA').text
+            fecha = datetime.strptime(fechaSTR, '%d/%m/%Y')
             
             cantFacturas = int(aut.find('FACTURAS_RECIBIDAS').text)
             
@@ -282,12 +288,13 @@ def UpdateBase():
                 BaseDatos.append(autorizacionAprobada(fecha,cantFacturas,ErrEmisor,ErrReceptor,ErrIVA,ErrRef,cantFactCorrectas,cantEmisor,cantReceptor,listaAut,cantAprobaciones))
             else:
                 BaseDatos.append(autorizacionAprobada(fecha,cantFacturas,ErrEmisor,ErrReceptor,ErrIVA,ErrRef,cantFactCorrectas,cantEmisor,cantReceptor,None,0))
-                
+        
+        BaseDatos.sort(key = lambda r: r.fecha)          
     else:
         BaseDatos=None
               
 @app.route('/baseDatos',methods=['POST','GET'])     
-def baseDatos():
+def accesBaseDatos():
     if request.method=='POST':
         #si es post, el usuario activo el boton eliminar
         xml_data = "<LISTAAUTORIZACIONES></LISTAAUTORIZACIONES>"
@@ -307,34 +314,73 @@ def baseDatos():
         return jsonify({"estadoBase":"Base Eliminada","BaseDatos":xmlResult})   
     
     elif request.method=='GET':
+        global BaseDatos
+        
+        
         Carpeta_Raiz = os.path.dirname(os.path.abspath(__file__))
         rutaBase =Carpeta_Raiz+'/Base_Autorizaciones.xml'
         tree = ET.parse(rutaBase)
-        root = tree.getroot()   
+        root = tree.getroot()  
         
         xmlResult = ET.tostring(root, encoding='utf8').decode('utf8')
         
         return jsonify({"estadoBase":"Base Actualizada","BaseDatos":xmlResult})
 
-UpdateBase()
+
 
 @app.route('/ivaNitChart',methods=['POST','GET'])
-
 def ivaNit():
     global BaseDatos
-    baseDatos.sort(key = lambda r: r.fecha)
     
-    if request.method == 'GET':
+    
+    if request.method == 'POST':
+        datos = request.get_json()
         
-       
+        nit = datos['nit']
         
-       
+        fechaInicio = datos['fechaIn']
+        fechaInicio = fechaInicio.split("-")
         
+        diaInit = fechaInicio[2]
+        mesInit= fechaInicio[1]
+        anioInit = fechaInicio[0]
+        fechaInt = '{}/{}/{}'.format(diaInit,mesInit,anioInit)
+        fechaInicioDate = datetime.strptime(fechaInt, '%d/%m/%Y')
+        
+        fechaFin = datos['fechaFin']
+        fechaFin = fechaFin.split("-")
+        diaFin = fechaFin[2]
+        mesFin= fechaFin[1]
+        anioFin = fechaFin[0]
+        fechaFin = '{}/{}/{}'.format(diaFin,mesFin,anioFin)
+        fechaFinDate = datetime.strptime(fechaFin, '%d/%m/%Y')
+        
+        fechasNitEmisor=[]
+        IvaEmitido = []
+   
+        
+        for aut in BaseDatos:
+            aut:autorizacionAprobada
+            
+            for aprob in autorizacion.listaAutorizaciones:
+                aprob:autorizacion
+               # if nit ==aprob.nitEmisor:
+                print("")
+                    
+                    
+                
+                
+            
 
-
         
+        print("nit= {}| FechaInicio = {} | FechaFin = {}".format(nit,fechaInt,fechaFin))
+        
+        return jsonify({"message:""form recibido"})
+    
+
+       
     
 
 if __name__=='__main__':
-    app.run(debug=True,port=5000)
+    app.run(debug=False,port=5000)
     

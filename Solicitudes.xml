@@ -9,5 +9,45 @@
         <IVA>12.00</IVA>
         <TOTAL>112.00</TOTAL>
     </DTE>
+
+    <DTE>
+        <TIEMPO>Guatemala, 25/01/2021 15:25 hrs.</TIEMPO>
+        <REFERENCIA>A1992</REFERENCIA>
+        <NIT_EMISOR>24284955</NIT_EMISOR>
+        <NIT_RECEPTOR>24284955</NIT_RECEPTOR>
+        <VALOR>100.00</VALOR>
+        <IVA>12.00</IVA>
+        <TOTAL>112.00</TOTAL>
+    </DTE>
+
+    <DTE>
+        <TIEMPO>Guatemala, 12/01/2021 15:25 hrs.</TIEMPO>
+        <REFERENCIA>A1993</REFERENCIA>
+        <NIT_EMISOR>24284955</NIT_EMISOR>
+        <NIT_RECEPTOR>24284955</NIT_RECEPTOR>
+        <VALOR>100.00</VALOR>
+        <IVA>12.00</IVA>
+        <TOTAL>112.00</TOTAL>
+    </DTE>
+
+    <DTE>
+        <TIEMPO>Guatemala, 24/02/2021 15:25 hrs.</TIEMPO>
+        <REFERENCIA>A1994</REFERENCIA>
+        <NIT_EMISOR>24284955</NIT_EMISOR>
+        <NIT_RECEPTOR>24284955</NIT_RECEPTOR>
+        <VALOR>100.00</VALOR>
+        <IVA>12.00</IVA>
+        <TOTAL>112.00</TOTAL>
+    </DTE>
+
+    <DTE>
+        <TIEMPO>Guatemala, 12/07/2020 15:25 hrs.</TIEMPO>
+        <REFERENCIA>A1995</REFERENCIA>
+        <NIT_EMISOR>24284955</NIT_EMISOR>
+        <NIT_RECEPTOR>24284955</NIT_RECEPTOR>
+        <VALOR>100.00</VALOR>
+        <IVA>12.00</IVA>
+        <TOTAL>112.00</TOTAL>
+    </DTE>
    
 </SOLICITUD_AUTORIZACION>

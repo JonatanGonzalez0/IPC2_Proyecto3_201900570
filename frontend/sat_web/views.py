@@ -1,9 +1,8 @@
-from frontend.forms import FileForm
+
+from frontend.forms import FileForm, IvaNitForm
 from django.shortcuts import render
 import requests
-import random
-import datetime
-import time
+
 
 endpoint = 'http://127.0.0.1:5000/'
 # Create your views here.
@@ -66,10 +65,24 @@ def baseDatos(request):
     
     return render(request,'VistaBase.html',context)
 
-
-
-
 def ivaNit(request):
+    context={
+            'fechas':'None',
+            'Iva_Emisiones':'None',
+            'Iva_Recepciones':'None'
+        }
     
-    if request.method == "GET":
-        return render(request,'graficaIvaNit.html')   
+    if request.method=='POST':
+        form = IvaNitForm(request.POST)
+        if form.is_valid():
+            json_data = form.cleaned_data
+            response = requests.post(endpoint + 'ivaNitChart',json = json_data)
+
+    else:
+        return render(request,'graficaIvaNit.html',context)   
+    
+        
+        
+        
+        
+        

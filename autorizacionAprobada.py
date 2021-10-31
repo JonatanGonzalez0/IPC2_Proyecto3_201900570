@@ -1,6 +1,5 @@
 
 class autorizacionAprobada:
-    
     def __init__(self,fecha,cantFact,cantErrorEmisor,cantErrorReceptor,cantErrorIva,cantErrorReferencia,cantFactCorrectas,cantEmisores,cantReceptores,listaAutorizaciones,cantAprobaciones):
         self.fecha = fecha
         self.facturasRecibidas = cantFact
