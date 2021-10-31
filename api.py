@@ -356,17 +356,31 @@ def ivaNit():
         fechaFinDate = datetime.strptime(fechaFin, '%d/%m/%Y')
         
         fechasNitEmisor=[]
-        IvaEmitido = []
-   
+        ValoresIvaEmitido = []
+
+        fechasRecepcion = []
+        ValoresIvaRecibido = []
         
         for aut in BaseDatos:
             aut:autorizacionAprobada
-            
-            for aprob in autorizacion.listaAutorizaciones:
-                aprob:autorizacion
-               # if nit ==aprob.nitEmisor:
-                print("")
-                    
+          
+            for aprob in aut.listaAutorizaciones:
+                aprob:aprobacion
+                if aut.fecha>=fechaInicioDate and aut.fecha<= fechaFinDate:
+
+                    if nit ==aprob.Nit_Emisor:
+                        fechaEmision = aut.fecha.strftime("%d/%m/%Y")
+                        fechasNitEmisor.append(fechaEmision) 
+                        ivaEmitido = aprob.iva
+                        ValoresIvaEmitido.append(ivaEmitido)
+                        
+                    if nit== aprob.Nit_Receptor:
+                        fechaRecepcion = aut.fecha.strftime("%d/%m/%Y")
+                        fechasRecepcion.append(fechaRecepcion)
+                        ivaRecibido = aprob.iva
+                        ValoresIvaRecibido.append(ivaRecibido)
+
+        return jsonify({'fechasNitEmision':fechasNitEmisor, 'ValorIvaEmitido':ValoresIvaEmitido, 'fechasNitReceptor':fechasRecepcion, 'valorIvaRecibido':ValoresIvaRecibido})         
                     
                 
                 

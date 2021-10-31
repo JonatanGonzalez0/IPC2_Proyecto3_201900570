@@ -4,5 +4,5 @@ class FileForm(forms.Form):
     
 class IvaNitForm(forms.Form):
    nit = forms.CharField(label="nit")
-   fechaIn = forms.DateField(label="fechaIn")
-   fechaFin = forms.DateField(label="fechaFIn")
+   fechaIn = forms.CharField(label="fechaIn")
+   fechaFin = forms.CharField(label="fechaFIn")

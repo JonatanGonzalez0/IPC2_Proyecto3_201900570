@@ -76,6 +76,7 @@ def ivaNit(request):
         form = IvaNitForm(request.POST)
         if form.is_valid():
             json_data = form.cleaned_data
+            
             response = requests.post(endpoint + 'ivaNitChart',json = json_data)
 
     else:
