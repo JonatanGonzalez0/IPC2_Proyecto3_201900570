@@ -293,8 +293,9 @@ def UpdateBase():
     else:
         BaseDatos=None
               
-@app.route('/baseDatos',methods=['POST','GET'])     
+@app.route('/baseDatos',methods=['POST','GET'])   
 def accesBaseDatos():
+    UpdateBase()
     if request.method=='POST':
         #si es post, el usuario activo el boton eliminar
         xml_data = "<LISTAAUTORIZACIONES></LISTAAUTORIZACIONES>"
@@ -330,6 +331,7 @@ def accesBaseDatos():
 
 @app.route('/ivaNitChart',methods=['POST'])
 def ivaNit():
+    UpdateBase()
     global BaseDatos
     if request.method == 'POST':
         datos = request.get_json()
@@ -361,27 +363,28 @@ def ivaNit():
         
         for aut in BaseDatos:
             aut:autorizacionAprobada
-          
-            for aprob in aut.listaAutorizaciones:
-                aprob:aprobacion
-                if aut.fecha>=fechaInicioDate and aut.fecha<= fechaFinDate:
-
-                    if nit ==aprob.Nit_Emisor:
-                        fechaEmision = aut.fecha.strftime("%d/%m/%Y")
-                        fechasNitEmisor.append(fechaEmision) 
-                        ivaEmitido = aprob.iva
-                        ValoresIvaEmitido.append(ivaEmitido)
+            if aut.listaAutorizaciones!=None:
+                for aprob in aut.listaAutorizaciones:
+                    aprob:aprobacion
+                    if aut.fecha>=fechaInicioDate and aut.fecha<= fechaFinDate:
                         
-                    if nit== aprob.Nit_Receptor:
-                        fechaRecepcion = aut.fecha.strftime("%d/%m/%Y")
-                        fechasRecepcion.append(fechaRecepcion)
-                        ivaRecibido = aprob.iva
-                        ValoresIvaRecibido.append(ivaRecibido)
+                        if nit ==aprob.Nit_Emisor:
+                            fechaEmision = aut.fecha.strftime("%d/%m/%Y")
+                            fechasNitEmisor.append(fechaEmision) 
+                            ivaEmitido = aprob.iva
+                            ValoresIvaEmitido.append(ivaEmitido)
+                            
+                        if nit== aprob.Nit_Receptor:
+                            fechaRecepcion = aut.fecha.strftime("%d/%m/%Y")
+                            fechasRecepcion.append(fechaRecepcion)
+                            ivaRecibido = aprob.iva
+                            ValoresIvaRecibido.append(ivaRecibido)
 
         return jsonify({'fechasNitEmision':fechasNitEmisor, 'ValoresIvaEmitido':ValoresIvaEmitido, 'fechasNitReceptor':fechasRecepcion, 'valoresIvaRecibido':ValoresIvaRecibido})         
 
 @app.route('/autValorTotal',methods=['POST'])
 def autValor():
+    UpdateBase()
     global BaseDatos
     if request.method == 'POST':
         datos = request.get_json()
@@ -412,10 +415,11 @@ def autValor():
             valorTotal = 0
             
             if aut.fecha>=fechaInicioDate and aut.fecha<= fechaFinDate:
-                for aprob in aut.listaAutorizaciones:
-                    aprob:aprobacion
-                    if aut.fecha>=fechaInicioDate and aut.fecha<= fechaFinDate:
-                        valorTotal += aprob.valor
+                if aut.listaAutorizaciones!=None:
+                    for aprob in aut.listaAutorizaciones:
+                        aprob:aprobacion
+                        if aut.fecha>=fechaInicioDate and aut.fecha<= fechaFinDate:
+                            valorTotal += aprob.valor
                 
                 fechaAut = aut.fecha.strftime("%d/%m/%Y")
                 fechasAutorizacion.append(fechaAut)
