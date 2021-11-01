@@ -98,7 +98,6 @@ def autoValorTotal(request):
             'fechas_Autorizacion':'None',
             'totales_Sin_Iva':'None',
             'totales_Con_Iva':'None',
-            
         }
     
     if request.method=='POST':
@@ -106,7 +105,7 @@ def autoValorTotal(request):
         if form.is_valid():
             json_data = form.cleaned_data
             
-            response = requests.post(endpoint + 'ivaNitChart',json = json_data)
+            response = requests.post(endpoint + 'autValorTotal',json = json_data)
             
             response_data = response.json()
             context['fechas_Autorizacion'] = response_data['fechas_Autorizacion']
@@ -119,4 +118,8 @@ def autoValorTotal(request):
     else:
         return render(request,'graficaValorTotal.html')     
         
-        
+def ayuda(request):
+    return render(request,'ayuda.html')
+
+def pdfDocumentacion(request):
+    return render(request,'ayuda.html')

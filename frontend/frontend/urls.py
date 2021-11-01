@@ -24,4 +24,6 @@ urlpatterns = [
             path('BaseDatos/',views.baseDatos,name='baseDatos'),
             path('ivaNitChart/',views.ivaNit,name="ivaNitChart"),
             path('autValorTotal/',views.autoValorTotal,name="autValorTotal"),
+            path('ayuda/',views.ayuda,name="ayuda"),
+            path('pdfDocumentacion/',views.pdfDocumentacion,name="pdfDocumentacion")
             ]
