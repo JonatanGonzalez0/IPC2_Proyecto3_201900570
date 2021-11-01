@@ -22,6 +22,6 @@ urlpatterns = [
             path('',views.home,name="index"),
             path('cargar/',views.cargaMasiva,name='carga'),
             path('BaseDatos/',views.baseDatos,name='baseDatos'),
-            path('ivaNitChart/',views.ivaNit,name="ivaNitChart")
-            
+            path('ivaNitChart/',views.ivaNit,name="ivaNitChart"),
+            path('autValorTotal/',views.autoValorTotal,name="autValorTotal"),
             ]

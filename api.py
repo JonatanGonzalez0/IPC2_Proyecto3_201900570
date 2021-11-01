@@ -328,11 +328,9 @@ def accesBaseDatos():
 
 
 
-@app.route('/ivaNitChart',methods=['POST','GET'])
+@app.route('/ivaNitChart',methods=['POST'])
 def ivaNit():
     global BaseDatos
-    
-    
     if request.method == 'POST':
         datos = request.get_json()
         
@@ -380,21 +378,52 @@ def ivaNit():
                         ivaRecibido = aprob.iva
                         ValoresIvaRecibido.append(ivaRecibido)
 
-        return jsonify({'fechasNitEmision':fechasNitEmisor, 'ValorIvaEmitido':ValoresIvaEmitido, 'fechasNitReceptor':fechasRecepcion, 'valorIvaRecibido':ValoresIvaRecibido})         
-                    
-                
-                
+        return jsonify({'fechasNitEmision':fechasNitEmisor, 'ValoresIvaEmitido':ValoresIvaEmitido, 'fechasNitReceptor':fechasRecepcion, 'valoresIvaRecibido':ValoresIvaRecibido})         
+
+@app.route('/autValorTotal',methods=['POST'])
+def autValor():
+    global BaseDatos
+    if request.method == 'POST':
+        datos = request.get_json()
+        
+        fechaInicio = datos['fechaIn']
+        fechaInicio = fechaInicio.split("-")
+        
+        diaInit = fechaInicio[2]
+        mesInit= fechaInicio[1]
+        anioInit = fechaInicio[0]
+        fechaInt = '{}/{}/{}'.format(diaInit,mesInit,anioInit)
+        fechaInicioDate = datetime.strptime(fechaInt, '%d/%m/%Y')
+        
+        fechaFin = datos['fechaFin']
+        fechaFin = fechaFin.split("-")
+        diaFin = fechaFin[2]
+        mesFin= fechaFin[1]
+        anioFin = fechaFin[0]
+        fechaFin = '{}/{}/{}'.format(diaFin,mesFin,anioFin)
+        fechaFinDate = datetime.strptime(fechaFin, '%d/%m/%Y')
+        
+        fechasAutorizacion=[]
+        totalSinIva = []
+        totalConIva = []
+        
+        for aut in BaseDatos:
+            aut:autorizacionAprobada
+            valorTotal = 0
             
-
-        
-        print("nit= {}| FechaInicio = {} | FechaFin = {}".format(nit,fechaInt,fechaFin))
-        
-        return jsonify({"message:""form recibido"})
-    
-
+            if aut.fecha>=fechaInicioDate and aut.fecha<= fechaFinDate:
+                for aprob in aut.listaAutorizaciones:
+                    aprob:aprobacion
+                    if aut.fecha>=fechaInicioDate and aut.fecha<= fechaFinDate:
+                        valorTotal += aprob.valor
+                
+                fechaAut = aut.fecha.strftime("%d/%m/%Y")
+                fechasAutorizacion.append(fechaAut)
+                totalSinIva.append(valorTotal)
+                totalConIva.append(round(float(valorTotal*1.12),2))
+                
+        return jsonify({'fechas_Autorizacion':fechasAutorizacion, 'totales_Sin_Iva':totalSinIva, 'totales_Con_Iva':totalConIva})      
        
-    
-
 if __name__=='__main__':
-    app.run(debug=False,port=5000)
+    app.run(debug=True,port=5000)
     

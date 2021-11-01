@@ -1,5 +1,5 @@
 
-from frontend.forms import FileForm, IvaNitForm
+from frontend.forms import FileForm, IvaNitForm, AutorizacionesFechas
 from django.shortcuts import render
 import requests
 
@@ -67,9 +67,10 @@ def baseDatos(request):
 
 def ivaNit(request):
     context={
-            'fechas':'None',
-            'Iva_Emisiones':'None',
-            'Iva_Recepciones':'None'
+            'fechasNitEmision':'None',
+            'ValoresIvaEmitido':'None',
+            'fechasNitReceptor':'None',
+            'valoresIvaRecibido':'None'
         }
     
     if request.method=='POST':
@@ -78,12 +79,44 @@ def ivaNit(request):
             json_data = form.cleaned_data
             
             response = requests.post(endpoint + 'ivaNitChart',json = json_data)
+            
+            response_data = response.json()
+            context['fechasNitEmision'] = response_data['fechasNitEmision']
+            context['ValoresIvaEmitido'] = response_data['ValoresIvaEmitido']
+            context['fechasNitReceptor'] = response_data['fechasNitReceptor']
+            context['valoresIvaRecibido'] = response_data['valoresIvaRecibido']
 
+            return render(request,'graficaIvaNit.html',context)   
+        else:
+            return render(request,'graficaIvaNit.html',{'form':form})      
     else:
-        return render(request,'graficaIvaNit.html',context)   
+        return render(request,'graficaIvaNit.html')   
     
         
-        
-        
+def autoValorTotal(request):
+    context={
+            'fechas_Autorizacion':'None',
+            'totales_Sin_Iva':'None',
+            'totales_Con_Iva':'None',
+            
+        }
+    
+    if request.method=='POST':
+        form = AutorizacionesFechas(request.POST)
+        if form.is_valid():
+            json_data = form.cleaned_data
+            
+            response = requests.post(endpoint + 'ivaNitChart',json = json_data)
+            
+            response_data = response.json()
+            context['fechas_Autorizacion'] = response_data['fechas_Autorizacion']
+            context['totales_Sin_Iva'] = response_data['totales_Sin_Iva']
+            context['totales_Con_Iva'] = response_data['totales_Con_Iva']
+       
+            return render(request,'graficaValorTotal.html',context)   
+        else:
+            return render(request,'graficaValorTotal.html',{'form':form})      
+    else:
+        return render(request,'graficaValorTotal.html')     
         
         
