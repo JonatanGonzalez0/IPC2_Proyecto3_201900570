@@ -1,1 +1,1 @@
-# API REST using Django(Fronted) and Flask(Backend)
+# Aplicacion Web usando Django(Fronted) and Flask(Backend)
