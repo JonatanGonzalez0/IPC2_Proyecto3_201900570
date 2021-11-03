@@ -361,25 +361,32 @@ def ivaNit():
         fechasRecepcion = []
         ValoresIvaRecibido = []
         
-        for aut in BaseDatos:
-            aut:autorizacionAprobada
-            if aut.listaAutorizaciones!=None:
-                for aprob in aut.listaAutorizaciones:
-                    aprob:aprobacion
-                    if aut.fecha>=fechaInicioDate and aut.fecha<= fechaFinDate:
-                        
-                        if nit ==aprob.Nit_Emisor:
-                            fechaEmision = aut.fecha.strftime("%d/%m/%Y")
-                            fechasNitEmisor.append(fechaEmision) 
-                            ivaEmitido = aprob.iva
-                            ValoresIvaEmitido.append(ivaEmitido)
+        if BaseDatos!= None:
+            for aut in BaseDatos:
+                aut:autorizacionAprobada
+                if aut.listaAutorizaciones!=None:
+                    for aprob in aut.listaAutorizaciones:
+                        aprob:aprobacion
+                        if aut.fecha>=fechaInicioDate and aut.fecha<= fechaFinDate:
                             
-                        if nit== aprob.Nit_Receptor:
-                            fechaRecepcion = aut.fecha.strftime("%d/%m/%Y")
-                            fechasRecepcion.append(fechaRecepcion)
-                            ivaRecibido = aprob.iva
-                            ValoresIvaRecibido.append(ivaRecibido)
+                            if nit ==aprob.Nit_Emisor:
+                                fechaEmision = aut.fecha.strftime("%d/%m/%Y")
+                                fechasNitEmisor.append(fechaEmision) 
+                                ivaEmitido = aprob.iva
+                                ValoresIvaEmitido.append(ivaEmitido)
+                                
+                            if nit== aprob.Nit_Receptor:
+                                fechaRecepcion = aut.fecha.strftime("%d/%m/%Y")
+                                fechasRecepcion.append(fechaRecepcion)
+                                ivaRecibido = aprob.iva
+                                ValoresIvaRecibido.append(ivaRecibido)
+        else:
+            fechasNitEmisor=None
+            ValoresIvaEmitido = None
 
+            fechasRecepcion = None
+            ValoresIvaRecibido = None
+            
         return jsonify({'fechasNitEmision':fechasNitEmisor, 'ValoresIvaEmitido':ValoresIvaEmitido, 'fechasNitReceptor':fechasRecepcion, 'valoresIvaRecibido':ValoresIvaRecibido})         
 
 @app.route('/autValorTotal',methods=['POST'])
@@ -410,22 +417,26 @@ def autValor():
         totalSinIva = []
         totalConIva = []
         
-        for aut in BaseDatos:
-            aut:autorizacionAprobada
-            valorTotal = 0
-            
-            if aut.fecha>=fechaInicioDate and aut.fecha<= fechaFinDate:
-                if aut.listaAutorizaciones!=None:
-                    for aprob in aut.listaAutorizaciones:
-                        aprob:aprobacion
-                        if aut.fecha>=fechaInicioDate and aut.fecha<= fechaFinDate:
-                            valorTotal += aprob.valor
+        if BaseDatos!= None:
+            for aut in BaseDatos:
+                aut:autorizacionAprobada
+                valorTotal = 0
                 
-                fechaAut = aut.fecha.strftime("%d/%m/%Y")
-                fechasAutorizacion.append(fechaAut)
-                totalSinIva.append(valorTotal)
-                totalConIva.append(round(float(valorTotal*1.12),2))
-                
+                if aut.fecha>=fechaInicioDate and aut.fecha<= fechaFinDate:
+                    if aut.listaAutorizaciones!=None:
+                        for aprob in aut.listaAutorizaciones:
+                            aprob:aprobacion
+                            if aut.fecha>=fechaInicioDate and aut.fecha<= fechaFinDate:
+                                valorTotal += aprob.valor
+                    
+                    fechaAut = aut.fecha.strftime("%d/%m/%Y")
+                    fechasAutorizacion.append(fechaAut)
+                    totalSinIva.append(valorTotal)
+                    totalConIva.append(round(float(valorTotal*1.12),2))
+        else:
+            fechasAutorizacion=None
+            totalSinIva = None
+            totalConIva = None 
         return jsonify({'fechas_Autorizacion':fechasAutorizacion, 'totales_Sin_Iva':totalSinIva, 'totales_Con_Iva':totalConIva})      
        
 if __name__=='__main__':
