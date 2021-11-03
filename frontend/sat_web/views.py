@@ -1,7 +1,10 @@
 
 from frontend.forms import FileForm, IvaNitForm, AutorizacionesFechas
 from django.shortcuts import render
+from django.http import FileResponse
 import requests
+
+from frontend.settings import PDF_FILES_FOLDER
 
 
 endpoint = 'http://127.0.0.1:5000/'
@@ -81,12 +84,16 @@ def ivaNit(request):
             response = requests.post(endpoint + 'ivaNitChart',json = json_data)
             
             response_data = response.json()
-            context['fechasNitEmision'] = response_data['fechasNitEmision']
-            context['ValoresIvaEmitido'] = response_data['ValoresIvaEmitido']
-            context['fechasNitReceptor'] = response_data['fechasNitReceptor']
-            context['valoresIvaRecibido'] = response_data['valoresIvaRecibido']
+            if response_data:
+                
+                context['fechasNitEmision'] = response_data['fechasNitEmision']
+                context['ValoresIvaEmitido'] = response_data['ValoresIvaEmitido']
+                context['fechasNitReceptor'] = response_data['fechasNitReceptor']
+                context['valoresIvaRecibido'] = response_data['valoresIvaRecibido']
 
-            return render(request,'graficaIvaNit.html',context)   
+                return render(request,'graficaIvaNit.html',context)
+            else:
+                return render(request,'graficaIvaNit.html')  
         else:
             return render(request,'graficaIvaNit.html',{'form':form})      
     else:
@@ -108,11 +115,14 @@ def autoValorTotal(request):
             response = requests.post(endpoint + 'autValorTotal',json = json_data)
             
             response_data = response.json()
-            context['fechas_Autorizacion'] = response_data['fechas_Autorizacion']
-            context['totales_Sin_Iva'] = response_data['totales_Sin_Iva']
-            context['totales_Con_Iva'] = response_data['totales_Con_Iva']
-       
-            return render(request,'graficaValorTotal.html',context)   
+            if response_data:
+                context['fechas_Autorizacion'] = response_data['fechas_Autorizacion']
+                context['totales_Sin_Iva'] = response_data['totales_Sin_Iva']
+                context['totales_Con_Iva'] = response_data['totales_Con_Iva']
+        
+                return render(request,'graficaValorTotal.html',context)   
+            else:
+                return render(request,'graficaValorTotal.html')  
         else:
             return render(request,'graficaValorTotal.html',{'form':form})      
     else:
@@ -122,4 +132,5 @@ def ayuda(request):
     return render(request,'ayuda.html')
 
 def pdfDocumentacion(request):
-    return render(request,'ayuda.html')
+    pdfDoc = open(PDF_FILES_FOLDER + '\Documentacion.pdf','rb')
+    return FileResponse(pdfDoc)
