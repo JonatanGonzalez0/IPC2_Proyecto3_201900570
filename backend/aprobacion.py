@@ -8,3 +8,4 @@ class aprobacion:
         self.valor = float(valor)
         self.iva = round(float(valor*0.12),2)
         self.total = round(self.valor + self.iva,2)
+        

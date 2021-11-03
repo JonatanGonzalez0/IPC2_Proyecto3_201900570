@@ -8,3 +8,4 @@ class autorizacion:
         self.iva = iva
         self.total = total
         self.error= error
+        

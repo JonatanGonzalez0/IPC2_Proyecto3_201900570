@@ -102,7 +102,4 @@ class procesador:
         for aut in self.lista_Autorizaciones:
             if aut.fecha == fecha:
                 self.lista_Autorizaciones.remove(aut)
-            
-
-            
-           
+        

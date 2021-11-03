@@ -13,4 +13,5 @@ class autorizacionAprobada:
         self.listaAutorizaciones = listaAutorizaciones
         self.cantidadAprobaciones = cantAprobaciones
         
+        
     
