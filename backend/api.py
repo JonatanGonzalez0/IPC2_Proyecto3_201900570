@@ -32,7 +32,7 @@ def cargarArchivo():
     datosDTE = root.findall('DTE')
     
     proceso = procesador()
-    
+    UpdateBase()
     for solicitud in datosDTE:
         fecha  = solicitud.find('TIEMPO').text
         matchFecha = re.search(r'\d{2}/\d{2}/\d{4}',fecha).group()
@@ -42,10 +42,15 @@ def cargarArchivo():
         except:
             continue
         referencia = solicitud.find('REFERENCIA').text
-
-        if proceso.ExisteReferencia(referencia)==True:
+        matchReferencia = re.search(r'\w{1,40}',referencia)
+        if not matchReferencia:
             proceso.lista_Autorizaciones.append(autorizacion(fechaDateTime,"","","","'","''","''",error='Referencia'))
             continue
+        
+        if proceso.ExisteReferencia(referencia)==True or ExisteReferenciaDup(referencia)==True: 
+            proceso.lista_Autorizaciones.append(autorizacion(fechaDateTime,"","","","'","''","''",error='Referencia'))
+            continue
+        
         Nit_Emisor = solicitud.find('NIT_EMISOR').text
         Nit_Emisor_Correcto = verificarNit(Nit_Emisor)
         
@@ -190,53 +195,64 @@ def cargarArchivo():
     return jsonify({"dataProcesada":xmlResult})
     
 def verificarNit(nit):
-    longitud =len(nit)
+    matchNit = re.search(r'\d{2,21}',nit)
+    if matchNit: 
+        longitud =len(nit)
     
-    acumSuma = 0
-    contRevers = 2
-    for i in range(longitud-2,-1,-1):
-        multiplicacion = int(nit[i])*contRevers
-        contRevers+=1
-        
-        acumSuma +=multiplicacion
+        acumSuma = 0
+        contRevers = 2
+        for i in range(longitud-2,-1,-1):
+            multiplicacion = int(nit[i])*contRevers
+            contRevers+=1
+            
+            acumSuma +=multiplicacion
 
-    modul = acumSuma%11
-    
-    rest = 11- modul 
-    
-    resutl = rest%11
-  
-    
-    if resutl<10 and resutl== int(nit[longitud-1]):
-        return True
-    else:
-        return False
+        modul = acumSuma%11
         
+        rest = 11- modul 
+        
+        resutl = rest%11
+    
+        
+        if resutl<10 and resutl== int(nit[longitud-1]):
+            return True
+        else:
+            return False
+    else:
+        return False  
 def verificarIva(valor,iva):
-    valor = float(valor)  
-    
-    iva = float(iva)
-    
-    ivaComprobador = round( float(valor*0.12),2)
-    
-    if ivaComprobador==iva:
-        return True
+    matchIva = re.search(r'\d+.\d{2}',iva)
+    if matchIva:
+        valor = round(float(valor),2)
+        
+        iva = round(float(iva),2)
+        
+        ivaComprobador = round( float(valor*0.12),2)
+        
+        if ivaComprobador==iva:
+            return True
+        else:
+            return False
     else:
         return False
     
 def verificarTotal(valor,total):
-    valor = float(valor)
-    iva = float(valor*0.12) 
-    
-    totalCorrecto = round(valor+iva,2) 
-    
-    total = round(float(total),2) 
-    
-    if totalCorrecto == total:
-        return True
+    matchTotal = re.search(r'\d+.\d{2}',total)
+    if matchTotal:
+        valor = float(valor)
+        iva = float(valor*0.12) 
+        
+        totalCorrecto = round(valor+iva,2) 
+        
+        total = round(float(total),2) 
+        
+        if totalCorrecto == total:
+            return True
+        else:
+            return False
     else:
         return False
-
+    
 def UpdateBase():
     global BaseDatos
     BaseDatos = []
@@ -311,6 +327,8 @@ def accesBaseDatos():
         root = tree.getroot()   
         
         xmlResult = ET.tostring(root, encoding='utf8').decode('utf8')
+        
+        UpdateBase()
         
         return jsonify({"estadoBase":"Base Eliminada","BaseDatos":xmlResult})   
     
@@ -438,7 +456,19 @@ def autValor():
             totalSinIva = None
             totalConIva = None 
         return jsonify({'fechas_Autorizacion':fechasAutorizacion, 'totales_Sin_Iva':totalSinIva, 'totales_Con_Iva':totalConIva})      
-       
+ 
+def ExisteReferenciaDup(refComprobar):
+    global BaseDatos
+    if BaseDatos!=None:
+        for aut in BaseDatos:
+            aut:autorizacionAprobada
+            if aut.listaAutorizaciones!=None:
+                for aprob in aut.listaAutorizaciones:
+                    aprob:aprobacion
+                    if aprob.referencia == refComprobar:
+                        return True
+    return False        
+      
 if __name__=='__main__':
     app.run(debug=False,port=5000)
     
